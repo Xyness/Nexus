@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark mode prose overrides for react-markdown */
+.dark .prose {
+  --tw-prose-body: theme(colors.zinc.300);
+  --tw-prose-headings: theme(colors.white);
+  --tw-prose-links: theme(colors.blue.400);
+  --tw-prose-bold: theme(colors.white);
+  --tw-prose-counters: theme(colors.zinc.400);
+  --tw-prose-bullets: theme(colors.zinc.500);
+  --tw-prose-hr: theme(colors.zinc.700);
+  --tw-prose-quotes: theme(colors.zinc.300);
+  --tw-prose-quote-borders: theme(colors.zinc.600);
+  --tw-prose-captions: theme(colors.zinc.400);
+  --tw-prose-code: theme(colors.zinc.200);
+  --tw-prose-pre-code: theme(colors.zinc.200);
+  --tw-prose-pre-bg: theme(colors.zinc.800);
+  --tw-prose-th-borders: theme(colors.zinc.600);
+  --tw-prose-td-borders: theme(colors.zinc.700);
+}
