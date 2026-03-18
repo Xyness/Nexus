@@ -9,6 +9,12 @@ AlphaWatch monitors crypto and financial markets, generating comprehensive analy
 ![LangGraph](https://img.shields.io/badge/LangGraph-Agent-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
+## Screenshots
+
+| Dashboard | Reports | Schedule |
+|:-:|:-:|:-:|
+| ![Dashboard](docs/dashboard.png) | ![Reports](docs/reports.png) | ![Schedule](docs/schedule.png) |
+
 ---
 
 ## Architecture
