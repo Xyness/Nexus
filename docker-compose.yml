@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: alphawatch
-      POSTGRES_PASSWORD: alphawatch
-      POSTGRES_DB: alphawatch
+      POSTGRES_USER: nexus
+      POSTGRES_PASSWORD: nexus
+      POSTGRES_DB: nexus
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U alphawatch"]
+      test: ["CMD-SHELL", "pg_isready -U nexus"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -20,9 +20,16 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://alphawatch:alphawatch@postgres:5432/alphawatch
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DATABASE_URL: postgresql+asyncpg://nexus:nexus@postgres:5432/nexus
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_IDS: ${TELEGRAM_CHAT_IDS:-}
+      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID:-}
+      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET:-}
+      TWITTER_BEARER_TOKEN: ${TWITTER_BEARER_TOKEN:-}
+      POLL_INTERVAL_MINUTES: ${POLL_INTERVAL_MINUTES:-10}
+      ALERT_RELEVANCE_THRESHOLD: ${ALERT_RELEVANCE_THRESHOLD:-7.0}
     depends_on:
       postgres:
         condition: service_healthy

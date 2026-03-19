@@ -12,3 +12,12 @@ class AgentState(TypedDict):
     key_facts: list[str]
     report_md: str
     errors: Annotated[list[str], operator.add]
+
+
+class NewsAnalysisResult(TypedDict):
+    relevance_score: float  # 0-10
+    affected_assets: list[str]
+    sentiment: str  # bullish, bearish, neutral
+    urgency: str  # breaking, important, normal, noise
+    summary: str
+    confidence: float  # 0-1

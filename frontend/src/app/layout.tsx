@@ -7,8 +7,8 @@ import { ThemeProvider } from "@/hooks/useTheme";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AlphaWatch — AI Market Intelligence",
-  description: "Autonomous AI agent for financial market surveillance",
+  title: "Nexus — AI Crypto & Finance Surveillance",
+  description: "Real-time AI-powered crypto and finance news monitoring and alerting system",
   icons: {
     icon: "/favicon.svg",
   },

@@ -4,10 +4,11 @@ from datetime import datetime, timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy import select
 
 from app.db.session import async_session_factory
-from app.models.database import Schedule
+from app.models.database import Schedule, Source
 from app.services.watch_service import create_report, run_watch
 
 logger = logging.getLogger(__name__)
@@ -27,6 +28,35 @@ async def _scheduled_job(schedule_id: str, topic: str):
         if schedule:
             schedule.last_run_at = datetime.now(timezone.utc)
             await session.commit()
+
+
+async def _poll_monitors():
+    """Polling job: fetch all enabled sources and process new items."""
+    from app.monitors.factory import get_monitor
+    from app.services.analysis_service import process_pending_news
+
+    logger.info("Monitor polling started")
+    async with async_session_factory() as session:
+        result = await session.execute(
+            select(Source).where(Source.enabled.is_(True))
+        )
+        sources = list(result.scalars().all())
+
+    total_new = 0
+    for source in sources:
+        try:
+            monitor = get_monitor(source.type)
+            new_items = await monitor.run(source)
+            total_new += len(new_items)
+        except Exception as e:
+            logger.error(f"Error polling source {source.name}: {e}")
+
+    if total_new > 0:
+        logger.info(f"Polling complete: {total_new} new items from {len(sources)} sources")
+        # Process pending news through analysis pipeline
+        await process_pending_news()
+    else:
+        logger.info(f"Polling complete: no new items from {len(sources)} sources")
 
 
 def _parse_cron(expression: str) -> CronTrigger:
@@ -52,8 +82,12 @@ async def create_schedule(topic: str, cron_expression: str) -> Schedule:
         await session.refresh(schedule)
 
     trigger = _parse_cron(cron_expression)
+
+    async def _job(sid=schedule.id, t=topic):
+        await _scheduled_job(sid, t)
+
     scheduler.add_job(
-        lambda: asyncio.ensure_future(_scheduled_job(schedule.id, topic)),
+        _job,
         trigger=trigger,
         id=schedule.id,
         replace_existing=True,
@@ -98,8 +132,11 @@ async def load_schedules_on_startup():
     for s in schedules:
         try:
             trigger = _parse_cron(s.cron_expression)
+            async def _job(sid=s.id, t=s.topic):
+                await _scheduled_job(sid, t)
+
             scheduler.add_job(
-                lambda sid=s.id, t=s.topic: asyncio.ensure_future(_scheduled_job(sid, t)),
+                _job,
                 trigger=trigger,
                 id=s.id,
                 replace_existing=True,
@@ -114,3 +151,20 @@ def start_scheduler():
     if not scheduler.running:
         scheduler.start()
         logger.info("Scheduler started")
+
+
+def start_monitor_polling(interval_minutes: int = 10):
+    """Add the monitor polling job to the scheduler."""
+    scheduler.add_job(
+        _poll_monitors,
+        trigger=IntervalTrigger(minutes=interval_minutes),
+        id="monitor_polling",
+        replace_existing=True,
+    )
+    # Also run immediately on startup
+    scheduler.add_job(
+        _poll_monitors,
+        id="monitor_polling_initial",
+        replace_existing=True,
+    )
+    logger.info(f"Monitor polling started (every {interval_minutes} minutes)")

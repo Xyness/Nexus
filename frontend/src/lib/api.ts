@@ -12,6 +12,7 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  // --- Watch (legacy) ---
   triggerWatch: (topic: string) =>
     fetchApi<{ report_id: string; status: string }>("/watch", {
       method: "POST",
@@ -36,4 +37,39 @@ export const api = {
 
   deleteReport: (id: string) =>
     fetchApi<{ status: string }>(`/reports/${id}`, { method: "DELETE" }),
+
+  // --- Nexus endpoints ---
+  getNews: (limit = 50, offset = 0) =>
+    fetchApi<import("./types").NewsItemWithAnalysis[]>(
+      `/news?limit=${limit}&offset=${offset}`
+    ),
+
+  getAlerts: (limit = 50, offset = 0) =>
+    fetchApi<import("./types").AlertResponse[]>(
+      `/alerts?limit=${limit}&offset=${offset}`
+    ),
+
+  getDailyStats: () =>
+    fetchApi<import("./types").DailyStatsResponse>("/news/stats/daily"),
+
+  getWatchlist: () =>
+    fetchApi<import("./types").WatchlistItem[]>("/watchlist"),
+
+  addToWatchlist: (asset_symbol: string, alert_threshold = 5.0) =>
+    fetchApi<import("./types").WatchlistItem>("/watchlist", {
+      method: "POST",
+      body: JSON.stringify({ asset_symbol, alert_threshold }),
+    }),
+
+  removeFromWatchlist: (id: string) =>
+    fetchApi<{ status: string }>(`/watchlist/${id}`, { method: "DELETE" }),
+
+  getSources: () =>
+    fetchApi<import("./types").SourceConfig[]>("/sources"),
+
+  toggleSource: (id: string, enabled: boolean) =>
+    fetchApi<import("./types").SourceConfig>(`/sources/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ enabled }),
+    }),
 };

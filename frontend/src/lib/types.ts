@@ -34,3 +34,64 @@ export interface Schedule {
   last_run_at: string | null;
   created_at: string;
 }
+
+// --- Nexus types ---
+
+export interface AnalysisResponse {
+  id: string;
+  news_item_id: string;
+  affected_assets: string[] | null;
+  sentiment: string | null;
+  urgency: string | null;
+  relevance_score: number;
+  confidence: number;
+  summary: string | null;
+  created_at: string;
+}
+
+export interface NewsItemWithAnalysis {
+  id: string;
+  url: string;
+  title: string;
+  source: string;
+  source_type: string;
+  fetched_at: string;
+  status: string;
+  analysis: AnalysisResponse | null;
+}
+
+export interface AlertResponse {
+  id: string;
+  analysis_id: string;
+  sent_at: string;
+  channel: string;
+  recipient: string;
+  analysis: AnalysisResponse | null;
+}
+
+export interface DailyStatsResponse {
+  total_news: number;
+  analyzed_news: number;
+  alerts_sent: number;
+  bullish_count: number;
+  bearish_count: number;
+  neutral_count: number;
+  active_sources: number;
+}
+
+export interface WatchlistItem {
+  id: string;
+  asset_symbol: string;
+  alert_threshold: number;
+  created_at: string;
+}
+
+export interface SourceConfig {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+  enabled: boolean;
+  last_fetched: string | null;
+  created_at: string;
+}
