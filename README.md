@@ -86,8 +86,8 @@ The original LangGraph agent pipeline (Planner → Search → Reader → Analyst
 ### 1. Clone & Setup
 
 ```bash
-git clone https://github.com/Xyness/AlphaWatch.git
-cd AlphaWatch
+git clone https://github.com/Xyness/Nexus.git
+cd Nexus
 cp .env.example .env
 ```
 
