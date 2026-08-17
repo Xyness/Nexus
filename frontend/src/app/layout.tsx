@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/hooks/useTheme";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Nexus — AI Crypto & Finance Surveillance",
+  title: "Nexus | AI Crypto & Finance Surveillance",
   description: "Real-time AI-powered crypto and finance news monitoring and alerting system",
   icons: {
     icon: "/favicon.svg",

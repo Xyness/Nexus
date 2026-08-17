@@ -21,7 +21,7 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Then [localhost:3000](http://localhost:3000). You don't need to fill anything in — with no
+Then [localhost:3000](http://localhost:3000). You don't need to fill anything in: with no
 `ANTHROPIC_API_KEY` set it starts in mock mode and the dashboard has news flowing through it
 within a minute. See [Mock mode](#mock-mode) below, it's the part I'd read first.
 
@@ -79,7 +79,7 @@ graph LR
 ```
 
 Monitors poll each enabled source every ten minutes. Anything new gets hashed on title+URL
-and dropped if we've seen it, which matters more than you'd think — the same Reuters story
+and dropped if we've seen it, which matters more than you'd think, because the same Reuters story
 comes back through four different feeds.
 
 What survives goes to the analyzer, which asks the model for a relevance score out of ten
@@ -106,8 +106,8 @@ If `ANTHROPIC_API_KEY` is empty, every external dependency is swapped for a fake
   medium, 50% noise) rather than everything clustering at 7
 - the Telegram bot logs to stdout
 
-The pipeline itself is untouched — fetch, dedup, analyze, alert, SSE, dashboard all run for
-real. This exists because the alternative is either a project nobody can try without a
+The pipeline itself is untouched: fetch, dedup, analyze, alert, SSE and dashboard all run
+for real. This exists because the alternative is either a project nobody can try without a
 billing account, or a test suite that costs money to run. `conftest.py` clears the key, so
 CI is always in mock mode.
 
@@ -119,7 +119,7 @@ TELEGRAM_BOT_TOKEN=123456:ABC...
 TELEGRAM_CHAT_IDS=123456789
 ```
 
-Reddit and Twitter credentials are optional and independent — each source enables itself
+Reddit and Twitter credentials are optional and independent. Each source enables itself
 when its keys are present, so you can run RSS-only quite happily.
 
 ## API
@@ -154,8 +154,8 @@ Everything is read from `.env` via pydantic-settings. The two you'll actually wa
 | `POLL_INTERVAL_MINUTES` | `10` | How often monitors run |
 | `ALERT_RELEVANCE_THRESHOLD` | `7.0` | Score needed to fire an alert |
 
-The rest are credentials — `ANTHROPIC_API_KEY`, `TAVILY_API_KEY`, `TELEGRAM_BOT_TOKEN`,
-`TELEGRAM_CHAT_IDS`, `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `TWITTER_BEARER_TOKEN` —
+The rest are credentials (`ANTHROPIC_API_KEY`, `TAVILY_API_KEY`, `TELEGRAM_BOT_TOKEN`,
+`TELEGRAM_CHAT_IDS`, `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `TWITTER_BEARER_TOKEN`)
 plus `DATABASE_URL`. All of them default to empty or to the docker-compose values.
 
 ## Stack

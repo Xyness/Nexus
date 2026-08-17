@@ -214,8 +214,8 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
           <Spinner size="lg" />
           <p className="text-sm text-gray-500 dark:text-zinc-400">
             {report.status === "pending"
-              ? "Queued — waiting to start analysis..."
-              : "Researching and analyzing — this page updates automatically."}
+              ? "Queued, waiting to start analysis..."
+              : "Researching and analyzing. This page updates automatically."}
           </p>
         </div>
       )}

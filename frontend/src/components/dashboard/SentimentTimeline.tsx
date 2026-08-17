@@ -50,7 +50,7 @@ export function SentimentTimeline({ reports }: { reports: ReportSummary[] }) {
             formatter={(value: number) => [`${value}%`, "Sentiment"]}
             labelFormatter={(label) => {
               const point = completed.find((c) => c.date === label);
-              return point ? `${point.topic} — ${label}` : label;
+              return point ? `${point.topic}: ${label}` : label;
             }}
           />
           <Line

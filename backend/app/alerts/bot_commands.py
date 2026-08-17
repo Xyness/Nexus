@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /status command — show system status."""
+    """Handle /status: show system status."""
     async with async_session_factory() as session:
         sources_count = await session.execute(
             select(func.count(Source.id)).where(Source.enabled.is_(True))
@@ -34,7 +34,7 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def cmd_last10(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle /last10 command — show last 10 alerts."""
+    """Handle /last10: show the last 10 alerts."""
     async with async_session_factory() as session:
         result = await session.execute(
             select(Alert)

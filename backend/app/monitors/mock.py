@@ -35,9 +35,9 @@ _FINANCE_NEWS = [
 _REDDIT_TITLES = [
     "[Discussion] Is {asset} about to break out? Technical analysis inside",
     "Unpopular opinion: {asset} is undervalued at current levels",
-    "{asset} whale just moved ${amount}M — what does this mean?",
+    "{asset} whale just moved ${amount}M: what does this mean?",
     "Just read the {asset} whitepaper update. Here's what's changing.",
-    "Why I'm accumulating {asset} at these levels — DD inside",
+    "Why I'm accumulating {asset} at these levels, DD inside",
     "Breaking: Major partnership announcement for {asset}",
     "{asset} network metrics are at all-time highs. Charts inside.",
     "Warning: {asset} showing bearish divergence on the 4H chart",

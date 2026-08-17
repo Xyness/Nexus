@@ -63,7 +63,7 @@ async def process_pending_news():
                 await send_alert(analysis, item)
 
             logger.info(
-                f"Analyzed: '{item.title[:60]}...' — "
+                f"Analyzed: '{item.title[:60]}...' | "
                 f"score={result['relevance_score']}, "
                 f"sentiment={result['sentiment']}, "
                 f"urgency={result['urgency']}"

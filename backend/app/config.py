@@ -3,7 +3,7 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    # API Keys — empty means mock mode
+    # API keys. Empty means mock mode.
     anthropic_api_key: str = ""
     tavily_api_key: str = ""
 

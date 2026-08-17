@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 MODEL = "claude-sonnet-5"
 
 # Structured outputs: the API constrains the response to this schema, so the
-# returned text is always valid JSON — no markdown fences, no repair parsing.
+# returned text is always valid JSON: no markdown fences, no repair parsing.
 _ANALYSIS_SCHEMA = {
     "type": "object",
     "properties": {
@@ -58,7 +58,7 @@ class AsyncLLMClient:
             # Adaptive thinking is on by default and shares this budget with the
             # response text, so leave headroom above the size of the JSON itself.
             max_tokens=4096,
-            # Scoring one headline is a short, scoped task — low effort keeps
+            # Scoring one headline is a short, scoped task, so low effort keeps
             # latency and cost down on a feed polled every few minutes.
             output_config={
                 "effort": "low",

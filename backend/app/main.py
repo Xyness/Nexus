@@ -53,7 +53,7 @@ async def _seed_sources():
 async def lifespan(app: FastAPI):
     settings = get_settings()
     if settings.mock_mode:
-        logger.warning("Running in MOCK MODE — API keys not configured. Using simulated data.")
+        logger.warning("Running in MOCK MODE: API keys not configured. Using simulated data.")
     else:
         logger.info("Running with live API keys.")
 
