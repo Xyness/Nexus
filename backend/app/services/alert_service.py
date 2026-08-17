@@ -45,8 +45,8 @@ async def should_alert(result: NewsAnalysisResult, settings: Settings) -> bool:
     """Determine if an analysis result should trigger an alert.
 
     Rules:
-    - score >= 7 AND urgency >= important → alert
-    - score >= asset's watchlist threshold if asset is in watchlist → alert
+    - score >= 7 AND urgency >= important -> alert
+    - score >= asset's watchlist threshold if asset is in watchlist -> alert
     - Anti-spam: cooldown 30min per asset
     """
     score = result["relevance_score"]

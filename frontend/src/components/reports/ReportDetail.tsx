@@ -55,7 +55,7 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
 
   return (
     <div className="space-y-8">
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
@@ -75,7 +75,7 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
             })}
             {report.completed_at && (
               <>
-                {" "}· Completed in{" "}
+                {" "}- Completed in{" "}
                 {Math.round(
                   (new Date(report.completed_at).getTime() -
                     new Date(report.created_at).getTime()) /
@@ -94,7 +94,7 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
         </button>
       </div>
 
-      {/* ── Metrics Bar ── */}
+      {/* Metrics Bar */}
       {isReady && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {report.sentiment_score !== null && (
@@ -123,7 +123,7 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
                   ? "text-red-600 dark:text-red-400"
                   : "text-yellow-600 dark:text-yellow-400"
               }`}>
-                {report.sentiment === "bullish" ? "↑" : report.sentiment === "bearish" ? "↓" : "→"}
+                {report.sentiment === "bullish" ? "+" : report.sentiment === "bearish" ? "-" : "="}
               </span>
               <span className="mt-1 text-xs font-medium text-gray-500 dark:text-zinc-400 capitalize">
                 {report.sentiment}
@@ -133,7 +133,7 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
         </div>
       )}
 
-      {/* ── Research Questions ── */}
+      {/* Research Questions */}
       {isReady && report.sub_questions && report.sub_questions.length > 0 && (
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400">
@@ -155,7 +155,7 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
         </div>
       )}
 
-      {/* ── Report Content ── */}
+      {/* Report Content */}
       {report.content_md && (
         <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400">
@@ -165,7 +165,7 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
         </div>
       )}
 
-      {/* ── Sources ── */}
+      {/* Sources */}
       {isReady && report.sources && report.sources.length > 0 && (
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400">
@@ -200,7 +200,7 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
         </div>
       )}
 
-      {/* ── Error ── */}
+      {/* Error */}
       {report.error_message && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-5 dark:border-red-500/20 dark:bg-red-500/10">
           <h2 className="mb-2 text-sm font-semibold text-red-800 dark:text-red-400">Error</h2>
@@ -208,7 +208,7 @@ export function ReportDetail({ report }: { report: ReportDetailType }) {
         </div>
       )}
 
-      {/* ── Loading state ── */}
+      {/* Loading state */}
       {(report.status === "pending" || report.status === "running") && (
         <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-gray-300 p-16 dark:border-zinc-700">
           <Spinner size="lg" />

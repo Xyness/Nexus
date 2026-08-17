@@ -8,7 +8,7 @@ from app.agent.nodes.writer import writer_node
 
 
 def build_graph():
-    """Build the linear agent pipeline: Planner → Search → Reader → Analyst → Writer."""
+    """Build the linear agent pipeline: Planner -> Search -> Reader -> Analyst -> Writer."""
     graph = StateGraph(AgentState)
 
     graph.add_node("planner", planner_node)

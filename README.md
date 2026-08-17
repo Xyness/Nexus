@@ -92,8 +92,8 @@ SSE event either way so the dashboard updates without polling. Watchlisted asset
 threshold, and there's a 30-minute cooldown per asset so one busy morning doesn't turn into
 forty notifications.
 
-The `/watch` endpoint is a separate, older path: a LangGraph pipeline (planner → search →
-reader → analyst → writer) that produces a long-form report on demand. It predates the
+The `/watch` endpoint is a separate, older path: a LangGraph pipeline (planner -> search ->
+reader -> analyst -> writer) that produces a long-form report on demand. It predates the
 streaming side and is kept because it's still the better tool when you want depth on one
 topic rather than breadth across the feed.
 
