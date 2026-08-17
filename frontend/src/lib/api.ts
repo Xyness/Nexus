@@ -12,7 +12,7 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  // --- Watch (legacy) ---
+  // Legacy /watch report pipeline
   triggerWatch: (topic: string) =>
     fetchApi<{ report_id: string; status: string }>("/watch", {
       method: "POST",
@@ -38,7 +38,7 @@ export const api = {
   deleteReport: (id: string) =>
     fetchApi<{ status: string }>(`/reports/${id}`, { method: "DELETE" }),
 
-  // --- Nexus endpoints ---
+  // Live news, alerts, watchlist
   getNews: (limit = 50, offset = 0) =>
     fetchApi<import("./types").NewsItemWithAnalysis[]>(
       `/news?limit=${limit}&offset=${offset}`

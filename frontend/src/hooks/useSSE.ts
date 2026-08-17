@@ -54,7 +54,8 @@ export function useSSE(path: string = "/news/stream") {
     es.onerror = () => {
       setConnected(false);
       es.close();
-      // Reconnect after 5 seconds
+      // EventSource retries on its own for network blips, but not once we've
+      // closed it, so back off and rebuild the connection by hand.
       reconnectTimeoutRef.current = setTimeout(connect, 5000);
     };
   }, [path]);

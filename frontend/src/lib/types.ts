@@ -35,7 +35,7 @@ export interface Schedule {
   created_at: string;
 }
 
-// --- Nexus types ---
+// Live monitoring side
 
 export interface AnalysisResponse {
   id: string;

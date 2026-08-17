@@ -26,7 +26,6 @@ class RedditMonitor(BaseMonitor):
     def _fetch_sync(self, source: Source) -> list[dict]:
         """Synchronous fetch using PRAW."""
         reddit = self._get_reddit()
-        # Extract subreddit name from URL
         parts = source.url.rstrip("/").split("/")
         subreddit_name = parts[-1] if parts else source.name
 

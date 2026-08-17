@@ -8,7 +8,7 @@ def get_llm():
         from app.agent.mock import MockChatModel
         return MockChatModel()
     from langchain_anthropic import ChatAnthropic
-    return ChatAnthropic(model="claude-sonnet-4-20250514", api_key=settings.anthropic_api_key)
+    return ChatAnthropic(model="claude-sonnet-5", api_key=settings.anthropic_api_key)
 
 
 def get_llm_client():

@@ -26,9 +26,7 @@ def _topic_seed(topic: str) -> random.Random:
     return random.Random(h)
 
 
-# ---------------------------------------------------------------------------
-#  Topic knowledge base — provides domain-specific context
-# ---------------------------------------------------------------------------
+# Canned domain context so mock answers aren't total nonsense.
 
 _CRYPTO = {
     "bitcoin", "btc", "ethereum", "eth", "solana", "sol", "cardano", "ada",
@@ -68,9 +66,7 @@ def _classify(topic: str) -> str:
     return "general"
 
 
-# ---------------------------------------------------------------------------
-#  Dynamic question generation
-# ---------------------------------------------------------------------------
+# Question generation
 
 _QUESTIONS: dict[str, list[list[str]]] = {
     "crypto": [
@@ -134,9 +130,7 @@ _QUESTIONS: dict[str, list[list[str]]] = {
     ],
 }
 
-# ---------------------------------------------------------------------------
-#  Dynamic fact / summary generation
-# ---------------------------------------------------------------------------
+# Facts and summaries
 
 def _generate_facts(topic: str, rng: random.Random, category: str) -> list[str]:
     price_change = rng.uniform(-18, 25)
@@ -186,14 +180,12 @@ def _generate_summary(topic: str, rng: random.Random, category: str) -> str:
     return "\n".join(f"- {f}" for f in facts)
 
 
-# ---------------------------------------------------------------------------
-#  Mock LLM
-# ---------------------------------------------------------------------------
+# Mock LLM
 
 class MockChatModel(BaseChatModel):
     """Mock LLM that returns realistic, topic-aware financial analysis."""
 
-    model_name: str = "mock-gpt-4o-mini"
+    model_name: str = "mock"
 
     @property
     def _llm_type(self) -> str:
@@ -241,9 +233,7 @@ class MockChatModel(BaseChatModel):
         return ChatResult(generations=[ChatGeneration(message=AIMessage(content=content))])
 
 
-# ---------------------------------------------------------------------------
-#  Mock Search Client
-# ---------------------------------------------------------------------------
+# Mock search client
 
 class MockTavilyClient:
     """Mock search client that returns topic-aware financial news results."""
@@ -299,9 +289,7 @@ class MockTavilyClient:
         return {"results": base_results[:max_results]}
 
 
-# ---------------------------------------------------------------------------
-#  Mock report generation
-# ---------------------------------------------------------------------------
+# Report generation
 
 def _generate_mock_report(topic: str, category: str, rng: random.Random) -> str:
     price_chg = rng.uniform(-15, 25)
@@ -413,9 +401,7 @@ The near-term outlook for {topic} is **{'moderately positive' if price_chg > 0 e
 """
 
 
-# ---------------------------------------------------------------------------
-#  Mock LLM Client for news analysis
-# ---------------------------------------------------------------------------
+# Mock client for the news-analysis path
 
 class MockLLMClient:
     """Mock LLM client for news analysis that returns realistic JSON."""

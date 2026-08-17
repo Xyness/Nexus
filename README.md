@@ -1,23 +1,43 @@
 # Nexus
 
-**AI-powered real-time crypto & finance surveillance system.**
+Watches crypto and finance news as it lands, has an LLM read every item, and pings you on
+Telegram when something is actually worth knowing about.
 
-Nexus monitors crypto and financial news in real time from RSS feeds, Reddit, and Twitter/X. It analyzes every news item with AI, scores its relevance, and sends Telegram alerts when something important happens. Works out of the box in **mock mode** — no API keys needed.
-
+[![CI](https://github.com/Xyness/Nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/Xyness/Nexus/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)
-![Anthropic](https://img.shields.io/badge/Anthropic-AI-purple)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
-
-## Screenshots
 
 | Dashboard | Alerts | Settings |
 |:-:|:-:|:-:|
 | ![Dashboard](docs/dashboard.png) | ![Alerts](docs/alerts.png) | ![Settings](docs/settings.png) |
 
----
+## Getting it running
 
-## Architecture
+```bash
+git clone https://github.com/Xyness/Nexus.git
+cd Nexus
+cp .env.example .env
+docker compose up -d
+```
+
+Then [localhost:3000](http://localhost:3000). You don't need to fill anything in — with no
+`ANTHROPIC_API_KEY` set it starts in mock mode and the dashboard has news flowing through it
+within a minute. See [Mock mode](#mock-mode) below, it's the part I'd read first.
+
+For development outside Docker:
+
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+
+cd frontend
+npm install && npm run dev
+```
+
+## How it fits together
 
 ```mermaid
 graph LR
@@ -58,110 +78,40 @@ graph LR
     API --> DB[(PostgreSQL)]
 ```
 
-### Pipeline
+Monitors poll each enabled source every ten minutes. Anything new gets hashed on title+URL
+and dropped if we've seen it, which matters more than you'd think — the same Reuters story
+comes back through four different feeds.
 
-| Step | Role |
-|------|------|
-| **Monitors** | Fetch news from RSS, Reddit, Twitter/X every N minutes |
-| **Deduplication** | SHA-256 hash on title+URL prevents duplicate processing |
-| **AI Analyzer** | Scores relevance (0-10), detects sentiment, urgency, affected assets |
-| **Alert Engine** | Triggers alerts based on thresholds + watchlist + 30min cooldown |
-| **Telegram Bot** | Sends formatted alerts with `/status`, `/last10` commands |
-| **SSE Broadcast** | Pushes real-time events to the dashboard |
+What survives goes to the analyzer, which asks the model for a relevance score out of ten
+plus sentiment, urgency and which assets are involved. That call uses the API's structured
+output mode, so the response comes back schema-constrained rather than as JSON wrapped in
+markdown fences that then needs unwrapping.
 
-### Legacy Report Pipeline
+Anything scoring above the threshold becomes an alert: Telegram if it's configured, and an
+SSE event either way so the dashboard updates without polling. Watchlisted assets use a lower
+threshold, and there's a 30-minute cooldown per asset so one busy morning doesn't turn into
+forty notifications.
 
-The original LangGraph agent pipeline (Planner → Search → Reader → Analyst → Writer) is still available via the `/watch` endpoint for on-demand deep-dive reports.
+The `/watch` endpoint is a separate, older path: a LangGraph pipeline (planner → search →
+reader → analyst → writer) that produces a long-form report on demand. It predates the
+streaming side and is kept because it's still the better tool when you want depth on one
+topic rather than breadth across the feed.
 
----
+## Mock mode
 
-## Quick Start
+If `ANTHROPIC_API_KEY` is empty, every external dependency is swapped for a fake:
 
-### Prerequisites
+- monitors invent plausible crypto/finance headlines instead of fetching
+- the analyzer returns generated scores with a realistic spread (roughly 20% high, 30%
+  medium, 50% noise) rather than everything clustering at 7
+- the Telegram bot logs to stdout
 
-- Docker & Docker Compose
-- Node.js 18+ (for frontend dev)
-- Python 3.12+ (for backend dev)
+The pipeline itself is untouched — fetch, dedup, analyze, alert, SSE, dashboard all run for
+real. This exists because the alternative is either a project nobody can try without a
+billing account, or a test suite that costs money to run. `conftest.py` clears the key, so
+CI is always in mock mode.
 
-### 1. Clone & Setup
-
-```bash
-git clone https://github.com/Xyness/Nexus.git
-cd Nexus
-cp .env.example .env
-```
-
-### 2. Run Everything with Docker
-
-```bash
-docker compose up -d
-```
-
-Open [http://localhost:3000](http://localhost:3000) — the dashboard shows live news and alerts immediately in mock mode.
-
-### Local Development
-
-```bash
-# Backend
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-
-# Frontend
-cd frontend
-npm install
-npm run dev
-```
-
----
-
-## API Reference
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/news` | List news items with analyses |
-| `GET` | `/news/stream` | SSE stream for real-time updates |
-| `GET` | `/news/stats/daily` | Today's statistics |
-| `GET` | `/alerts` | Alert history |
-| `GET` | `/watchlist` | List watched assets |
-| `POST` | `/watchlist` | Add asset (`{"asset_symbol": "BTC", "alert_threshold": 5.0}`) |
-| `DELETE` | `/watchlist/{id}` | Remove asset from watchlist |
-| `GET` | `/sources` | List all news sources |
-| `PATCH` | `/sources/{id}` | Enable/disable a source |
-| `POST` | `/watch` | Trigger a deep-dive report (legacy) |
-| `GET` | `/reports` | List all reports |
-| `GET` | `/reports/{id}` | Get a specific report |
-| `POST` | `/schedule` | Create a scheduled report |
-| `GET` | `/health` | Health check + system status |
-
-### Example
-
-```bash
-# Get recent news
-curl http://localhost:8000/news?limit=5
-
-# Add BTC to watchlist (alerts when score >= 5)
-curl -X POST http://localhost:8000/watchlist \
-  -H 'Content-Type: application/json' \
-  -d '{"asset_symbol": "BTC", "alert_threshold": 5.0}'
-
-# Check alerts
-curl http://localhost:8000/alerts
-```
-
----
-
-## Mock Mode
-
-When `ANTHROPIC_API_KEY` is empty, Nexus runs in **mock mode**:
-
-- Mock monitors generate realistic crypto/finance news every 10 minutes
-- Mock AI analyzer returns structured JSON with realistic score distributions (20% high, 30% medium, 50% noise)
-- Mock Telegram bot logs alerts to console instead of sending
-- The full pipeline runs end-to-end: fetch → dedup → analyze → alert → SSE → dashboard
-
-To use real APIs, add your keys to `.env`:
+To go live, fill in `.env`:
 
 ```
 ANTHROPIC_API_KEY=sk-ant-...
@@ -169,72 +119,51 @@ TELEGRAM_BOT_TOKEN=123456:ABC...
 TELEGRAM_CHAT_IDS=123456789
 ```
 
----
+Reddit and Twitter credentials are optional and independent — each source enables itself
+when its keys are present, so you can run RSS-only quite happily.
+
+## API
+
+| Method | Endpoint | |
+|---|---|---|
+| `GET` | `/news` | News with their analyses |
+| `GET` | `/news/stream` | SSE stream |
+| `GET` | `/news/stats/daily` | Today's numbers |
+| `GET` | `/alerts` | Alert history |
+| `GET` `POST` `DELETE` | `/watchlist` | Watched assets |
+| `GET` `PATCH` | `/sources` | List sources, enable/disable one |
+| `POST` | `/watch` | Deep-dive report (LangGraph path) |
+| `GET` | `/reports` | Reports, `/reports/{id}` for one |
+| `POST` | `/schedule` | Schedule a recurring report |
+| `GET` | `/health` | Health and system status |
+
+```bash
+curl http://localhost:8000/news?limit=5
+
+curl -X POST http://localhost:8000/watchlist \
+  -H 'Content-Type: application/json' \
+  -d '{"asset_symbol": "BTC", "alert_threshold": 5.0}'
+```
 
 ## Configuration
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ANTHROPIC_API_KEY` | Anthropic API key (empty = mock mode) | |
-| `TAVILY_API_KEY` | Tavily Search API key | |
-| `TELEGRAM_BOT_TOKEN` | Telegram bot token | |
-| `TELEGRAM_CHAT_IDS` | Comma-separated chat IDs | |
-| `REDDIT_CLIENT_ID` | Reddit app client ID | |
-| `REDDIT_CLIENT_SECRET` | Reddit app secret | |
-| `TWITTER_BEARER_TOKEN` | Twitter/X API bearer token | |
-| `POLL_INTERVAL_MINUTES` | Monitor polling interval | `10` |
-| `ALERT_RELEVANCE_THRESHOLD` | Min score to trigger alert | `7.0` |
+Everything is read from `.env` via pydantic-settings. The two you'll actually want to change:
 
----
+| Variable | Default | |
+|---|---|---|
+| `POLL_INTERVAL_MINUTES` | `10` | How often monitors run |
+| `ALERT_RELEVANCE_THRESHOLD` | `7.0` | Score needed to fire an alert |
 
-## Tech Stack
+The rest are credentials — `ANTHROPIC_API_KEY`, `TAVILY_API_KEY`, `TELEGRAM_BOT_TOKEN`,
+`TELEGRAM_CHAT_IDS`, `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `TWITTER_BEARER_TOKEN` —
+plus `DATABASE_URL`. All of them default to empty or to the docker-compose values.
 
-| Layer | Technology |
-|-------|-----------|
-| AI Analysis | Anthropic API (or mock) |
-| Report Agent | LangGraph + LangChain |
-| Backend | FastAPI + SQLAlchemy (async) |
-| Database | PostgreSQL 16 |
-| Scheduler | APScheduler |
-| Alerts | python-telegram-bot |
-| News Sources | feedparser, PRAW, Tweepy |
-| Frontend | Next.js 14 + Tailwind CSS |
-| Real-time | Server-Sent Events (SSE) |
-| Infra | Docker Compose |
+## Stack
 
----
-
-## Project Structure
-
-```
-Nexus/
-├── backend/
-│   ├── app/
-│   │   ├── main.py              # FastAPI entrypoint + source seeding
-│   │   ├── config.py            # Settings + mock detection
-│   │   ├── api/                 # REST endpoints (news, alerts, watchlist, sources)
-│   │   ├── models/              # ORM models + Pydantic schemas
-│   │   ├── db/                  # Async session + init
-│   │   ├── agent/               # AI analyzer + LangGraph pipeline
-│   │   ├── monitors/            # RSS, Reddit, Twitter monitors + mocks
-│   │   ├── alerts/              # Telegram bot + formatting + mock
-│   │   ├── services/            # Business logic (analysis, alerts, scheduler)
-│   │   └── core/                # LLM client factories
-│   ├── tests/                   # pytest test suite
-│   ├── requirements.txt
-│   └── Dockerfile
-├── frontend/
-│   └── src/
-│       ├── app/                 # Pages (dashboard, alerts, watchlist, settings)
-│       ├── components/          # React components
-│       ├── hooks/               # useSSE, useAlerts, useWatchlist, usePolling
-│       └── lib/                 # API client + types
-├── docs/                        # Screenshots
-├── docker-compose.yml
-└── README.md
-```
-
----
+FastAPI with async SQLAlchemy over PostgreSQL 16, APScheduler for the polling loop,
+python-telegram-bot for delivery, feedparser/PRAW/Tweepy for the sources. The report pipeline
+is LangGraph. Frontend is Next.js 14 with Tailwind, taking live updates over SSE. Docker
+Compose ties it together.
 
 ## License
 

@@ -22,7 +22,6 @@ async def _scheduled_job(schedule_id: str, topic: str):
     report_id = await create_report(topic)
     await run_watch(report_id)
 
-    # Update last_run_at
     async with async_session_factory() as session:
         schedule = await session.get(Schedule, schedule_id)
         if schedule:
@@ -53,7 +52,6 @@ async def _poll_monitors():
 
     if total_new > 0:
         logger.info(f"Polling complete: {total_new} new items from {len(sources)} sources")
-        # Process pending news through analysis pipeline
         await process_pending_news()
     else:
         logger.info(f"Polling complete: no new items from {len(sources)} sources")

@@ -22,7 +22,6 @@ async def create_report(topic: str) -> str:
 
 async def run_watch(report_id: str):
     """Execute the agent pipeline and persist results."""
-    # Mark as running
     async with async_session_factory() as session:
         report = await session.get(Report, report_id)
         if not report:
@@ -48,7 +47,6 @@ async def run_watch(report_id: str):
             },
         )
 
-        # Persist results
         async with async_session_factory() as session:
             report = await session.get(Report, report_id)
             report.status = "completed"

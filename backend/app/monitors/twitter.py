@@ -21,17 +21,14 @@ class TwitterMonitor(BaseMonitor):
         """Synchronous fetch using Tweepy."""
         client = self._get_client()
 
-        # Extract username from URL
         parts = source.url.rstrip("/").split("/")
         username = parts[-1].lstrip("@")
 
-        # Get user ID
         user = client.get_user(username=username)
         if not user.data:
             logger.warning(f"Twitter user not found: {username}")
             return []
 
-        # Get recent tweets
         tweets = client.get_users_tweets(
             id=user.data.id,
             max_results=10,

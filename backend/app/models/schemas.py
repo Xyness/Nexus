@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-# --- Watch ---
+# Watch
 
 class WatchRequest(BaseModel):
     topic: str
@@ -13,7 +13,7 @@ class WatchResponse(BaseModel):
     status: str
 
 
-# --- Reports ---
+# Reports
 
 class ReportSummary(BaseModel):
     id: str
@@ -42,7 +42,7 @@ class ReportDetail(ReportSummary):
     model_config = {"from_attributes": True}
 
 
-# --- Schedule ---
+# Schedule
 
 class ScheduleCreateRequest(BaseModel):
     topic: str
@@ -60,7 +60,7 @@ class ScheduleResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# --- News ---
+# News
 
 class NewsItemResponse(BaseModel):
     id: str
@@ -102,7 +102,7 @@ class AnalysisResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# --- Alerts ---
+# Alerts
 
 class AlertResponse(BaseModel):
     id: str
@@ -115,7 +115,7 @@ class AlertResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# --- Watchlist ---
+# Watchlist
 
 class WatchlistItemCreate(BaseModel):
     asset_symbol: str
@@ -131,7 +131,7 @@ class WatchlistItemResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# --- Sources ---
+# Sources
 
 class SourceResponse(BaseModel):
     id: str
@@ -149,7 +149,7 @@ class SourceToggleRequest(BaseModel):
     enabled: bool
 
 
-# --- Stats ---
+# Stats
 
 class DailyStatsResponse(BaseModel):
     total_news: int = 0

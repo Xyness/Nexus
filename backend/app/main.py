@@ -57,22 +57,17 @@ async def lifespan(app: FastAPI):
     else:
         logger.info("Running with live API keys.")
 
-    # Initialize database tables
     await init_db()
     logger.info("Database initialized.")
 
-    # Seed default sources
     await _seed_sources()
 
-    # Start scheduler and restore saved schedules
     start_scheduler()
     await load_schedules_on_startup()
     logger.info("Scheduler started.")
 
-    # Start monitor polling
     start_monitor_polling(settings.poll_interval_minutes)
 
-    # Start Telegram bot if configured
     if settings.telegram_enabled:
         try:
             from app.alerts.bot_commands import create_bot_application
@@ -90,7 +85,6 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # Shutdown Telegram bot
     if bot_app:
         try:
             await bot_app.updater.stop()

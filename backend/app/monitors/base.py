@@ -41,7 +41,6 @@ class BaseMonitor(ABC):
             for item in raw_items:
                 content_hash = self.compute_hash(item["title"], item["url"])
 
-                # Check for duplicate
                 existing = await session.execute(
                     select(NewsItem).where(NewsItem.content_hash == content_hash)
                 )
@@ -66,7 +65,6 @@ class BaseMonitor(ABC):
                 for item in new_items:
                     await session.refresh(item)
 
-            # Update source last_fetched
             src = await session.get(Source, source.id)
             if src:
                 src.last_fetched = datetime.now(timezone.utc)

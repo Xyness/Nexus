@@ -12,7 +12,8 @@ from app.models.database import Alert, Analysis, NewsItem, Watchlist
 
 logger = logging.getLogger(__name__)
 
-# Cooldown: 30 minutes per asset
+# One asset can generate a dozen headlines in a bad hour; without this the
+# Telegram channel becomes unreadable and people mute it.
 COOLDOWN_MINUTES = 30
 
 
@@ -58,13 +59,11 @@ async def should_alert(result: NewsAnalysisResult, settings: Settings) -> bool:
         if asset in watchlist:
             threshold = watchlist[asset]
             if score >= threshold:
-                # Check cooldown
                 if not await _is_on_cooldown(asset):
                     return True
 
     # Standard threshold: high relevance + urgency
     if score >= settings.alert_relevance_threshold and urgency in ("breaking", "important"):
-        # Check cooldown for any affected asset
         for asset in assets:
             if not await _is_on_cooldown(asset):
                 return True
@@ -76,7 +75,6 @@ async def send_alert(analysis: Analysis, news_item: NewsItem):
     """Send alert for an analysis result."""
     settings = get_settings()
 
-    # Get or create telegram sender
     if settings.telegram_enabled:
         from app.alerts.telegram import send_telegram_alert
         for chat_id in settings.chat_id_list:
@@ -86,12 +84,10 @@ async def send_alert(analysis: Analysis, news_item: NewsItem):
             except Exception as e:
                 logger.error(f"Failed to send Telegram alert to {chat_id}: {e}")
     else:
-        # Mock mode: log to console
         from app.alerts.mock import log_mock_alert
         await log_mock_alert(analysis, news_item)
         await _record_alert(analysis.id, "console", "mock")
 
-    # Broadcast SSE event
     event_data = json.dumps({
         "analysis_id": analysis.id,
         "title": news_item.title,

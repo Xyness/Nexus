@@ -28,7 +28,6 @@ async def get_alerts(
 
         response = []
         for alert in alerts:
-            # Get analysis for this alert
             analysis = await session.get(Analysis, alert.analysis_id)
             analysis_resp = None
             if analysis:

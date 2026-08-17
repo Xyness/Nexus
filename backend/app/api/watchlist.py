@@ -25,7 +25,6 @@ async def get_watchlist():
 async def add_to_watchlist(item: WatchlistItemCreate):
     """Add an asset to the watchlist."""
     async with async_session_factory() as session:
-        # Check for duplicate
         existing = await session.execute(
             select(Watchlist).where(Watchlist.asset_symbol == item.asset_symbol.upper())
         )

@@ -30,7 +30,6 @@ async def process_pending_news():
                 content=item.raw_content or "",
             )
 
-            # Persist analysis
             async with async_session_factory() as session:
                 analysis = Analysis(
                     news_item_id=item.id,
@@ -47,7 +46,6 @@ async def process_pending_news():
 
             await update_status(item.id, "analyzed")
 
-            # Broadcast SSE event
             event_data = json.dumps({
                 "news_id": item.id,
                 "title": item.title,
@@ -60,7 +58,6 @@ async def process_pending_news():
             })
             await broadcast_event("news_analyzed", event_data)
 
-            # Check if we should alert
             settings = get_settings()
             if await should_alert(result, settings):
                 await send_alert(analysis, item)

@@ -7,7 +7,7 @@ from app.monitors.base import BaseMonitor
 
 logger = logging.getLogger(__name__)
 
-# Realistic mock news templates
+# Templates the fake monitor fills in
 _CRYPTO_NEWS = [
     ("Bitcoin Breaks Past ${price}K as Institutional Demand Surges", "Bitcoin rallied past ${price},000 today as institutional investors continue accumulating. ETF inflows reached ${flow}M this week."),
     ("Ethereum Foundation Announces Major Protocol Upgrade", "The Ethereum Foundation revealed plans for a significant protocol upgrade targeting improved scalability and reduced gas fees."),
@@ -58,14 +58,12 @@ class MockRSSMonitor(BaseMonitor):
     async def fetch(self, source: Source) -> list[dict]:
         rng = random.Random(time.time())
 
-        # Generate 1-3 news items per fetch
         count = rng.randint(1, 3)
         pool = _CRYPTO_NEWS if "crypto" in source.name.lower() or "coin" in source.name.lower() else _FINANCE_NEWS
         items = []
 
         for _ in range(count):
             template_title, template_content = rng.choice(pool)
-            # Fill in random values
             title = template_title.replace("${price}", str(rng.randint(60, 120)))
             title = title.replace("${flow}", str(rng.randint(100, 800)))
             title = title.replace("${tvl}", f"{rng.uniform(5, 30):.1f}")
